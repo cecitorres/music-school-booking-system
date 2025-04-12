@@ -1,0 +1,22 @@
+# Gitignore for /backend directory with .NET project and /frontend with React project
+
+# Backend (.NET)
+backend/bin/
+backend/obj/
+backend/*.user
+backend/*.suo
+backend/*.swp
+backend/*.log
+backend/*.vs/
+backend/.vs/
+backend/*.db
+backend/*.DS_Store
+
+# Frontend (React)
+frontend/node_modules/
+frontend/.env
+frontend/build/
+frontend/.DS_Store
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
