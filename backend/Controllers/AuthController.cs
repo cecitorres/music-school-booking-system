@@ -37,7 +37,7 @@ namespace MusicSchoolBookingSystem.Controllers
                 return Unauthorized("Invalid email or password.");
             }
             // Check if the password is correct
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 return Unauthorized("Invalid email or password.");
             }
@@ -96,7 +96,7 @@ namespace MusicSchoolBookingSystem.Controllers
             var user = new User
             {
                 Email = registerRequest.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
+                Password = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
                 Role = registerRequest.Role,
                 PhoneNumber = registerRequest.PhoneNumber,
                 FirstName = registerRequest.FirstName,
@@ -108,6 +108,52 @@ namespace MusicSchoolBookingSystem.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Login), new { email = user.Email }, user);
+        }
+
+        // Edit user endpoint
+        [HttpPut("edit")]
+        [Authorize (Roles = "Admin, Teacher, Student")]
+        public async Task<IActionResult> EditUser([FromBody] User user)
+        {
+            // Validate the user input
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+            {
+                return BadRequest("Email and password are required.");
+            }
+            if (await _context.Users.AnyAsync(u => u.Email == user.Email && u.Id != user.Id))
+            {
+                return Conflict("Email already exists.");
+            }
+
+            // Update the user in the database
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
+
+        // User endpoint
+        [HttpGet("user/{id}")]
+        [Authorize (Roles = "Admin, Teacher, Student")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            // Get the user from the database
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Return the user information
+            return Ok(new
+            {
+                user.Id,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.PhoneNumber,
+                user.Role,
+                user.CreatedAt
+            });
         }
     }
 

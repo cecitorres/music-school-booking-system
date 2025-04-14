@@ -27,7 +27,7 @@ namespace MusicSchoolBookingSystem.Models
         [Required]
         [MaxLength(255)]
         [DataType(DataType.Password)]
-        public required string PasswordHash { get; set; }
+        public required string Password { get; set; }
 
         [Required]
         [MaxLength(15)]
