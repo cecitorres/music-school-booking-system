@@ -147,6 +147,49 @@ namespace MusicSchoolBookingSystem.Controllers
             return Ok(bookings);
         }
 
+        // PATCH /api/bookings/{id}/status
+        [Authorize(Roles = "Admin, Teacher")]
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] StatusUpdateRequest statusUpdateRequest)
+        {
+            // Validate the status
+            if (statusUpdateRequest.Status != "Accepted" && statusUpdateRequest.Status != "Rejected")
+            {
+                return BadRequest("Invalid status. Only 'Accepted' or 'Rejected' are allowed.");
+            }
+
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the booking is already accepted or rejected
+            if (booking.Status == "Accepted" || booking.Status == "Rejected")
+            {
+                return BadRequest("Booking status has already been updated.");
+            }
+
+            // Check if the user is authorized to update the booking status
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId))
+            {
+                return Forbid("You are not authorized to update this booking status.");
+            }
+
+            // Update the booking status
+            booking.Status = statusUpdateRequest.Status;
+            _context.Entry(booking).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        public class StatusUpdateRequest
+        {
+            public string Status { get; set; }
+        }
+
         // DELETE: api/Bookings/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)
