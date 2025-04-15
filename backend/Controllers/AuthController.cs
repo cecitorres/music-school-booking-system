@@ -112,20 +112,35 @@ namespace MusicSchoolBookingSystem.Controllers
 
         // Edit user endpoint
         [HttpPut("edit")]
-        [Authorize (Roles = "Admin, Teacher, Student")]
-        public async Task<IActionResult> EditUser([FromBody] User user)
+        [Authorize(Roles = "Admin, Teacher, Student")]
+        public async Task<IActionResult> EditUser([FromBody] EditUserRequest editUserRequest)
         {
             // Validate the user input
-            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+            if (string.IsNullOrEmpty(editUserRequest.Email) || string.IsNullOrEmpty(editUserRequest.Password))
             {
                 return BadRequest("Email and password are required.");
             }
-            if (await _context.Users.AnyAsync(u => u.Email == user.Email && u.Id != user.Id))
+            if (await _context.Users.AnyAsync(u => u.Email == editUserRequest.Email && u.Id != editUserRequest.Id))
             {
                 return Conflict("Email already exists.");
             }
 
-            // Update the user in the database
+            // Find the user in the database
+            var user = await _context.Users.FindAsync(editUserRequest.Id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Update only the fields that are allowed to be edited
+            user.FirstName = editUserRequest.FirstName;
+            user.LastName = editUserRequest.LastName;
+            user.Email = editUserRequest.Email;
+            user.Password = BCrypt.Net.BCrypt.HashPassword(editUserRequest.Password); // Hash the password
+            user.PhoneNumber = editUserRequest.PhoneNumber;
+            user.Role = editUserRequest.Role;
+
+            // Save changes to the database
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             return Ok(user);
@@ -168,6 +183,17 @@ namespace MusicSchoolBookingSystem.Controllers
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; } // e.g., "Teacher", "Student"
+        public string PhoneNumber { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    public class EditUserRequest
+    {
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Role { get; set; }
         public string PhoneNumber { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
