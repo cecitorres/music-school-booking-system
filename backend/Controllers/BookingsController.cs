@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicSchoolBookingSystem.Models;
+using System.Security.Claims;
 
 namespace MusicSchoolBookingSystem.Controllers
 {
@@ -72,15 +73,78 @@ namespace MusicSchoolBookingSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Bookings
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Student booking a calendar slot
         [HttpPost]
-        public async Task<ActionResult<Booking>> PostBooking(Booking booking)
+        public async Task<ActionResult<Booking>> PostBooking(BookingRequest bookingRequest)
         {
+            // Validate booking request is for 60 minutes only (we only support 60 minutes for now)
+            if (bookingRequest.Duration != 60)
+            {
+                return BadRequest("Booking duration must be 60 minutes.");
+            }
+
+            // Validate the teacher exists
+            var teacher = await _context.Teachers.FindAsync(bookingRequest.TeacherId);
+            if (teacher == null)
+            {
+                return NotFound("Teacher not found.");
+            }
+
+            // Validate the teacher's availability            
+            var bookingEndTime = bookingRequest.StartTime.AddMinutes(bookingRequest.Duration);
+            var calendar = await _context.Calendars
+                .Where(c => c.TeacherId == bookingRequest.TeacherId && c.StartTime <= bookingRequest.StartTime && c.EndTime >= bookingEndTime)
+                .FirstOrDefaultAsync();
+
+            if (calendar == null)
+            {
+                return BadRequest("Teacher is not available for the requested time.");
+            }
+
+            // Validate the booking does not overlap with existing bookings
+            var existingBooking = await _context.Bookings
+                .Where(b => b.CalendarId == calendar.Id && b.StartTime < bookingEndTime && bookingRequest.StartTime < b.EndTime)
+                .FirstOrDefaultAsync();
+            if (existingBooking != null)
+            {
+                return BadRequest("Booking overlaps with an existing booking.");
+            }
+
+            // Create a new booking
+            var booking = new Booking
+            {
+                CalendarId = calendar.Id,
+                StudentId = bookingRequest.StudentId,
+                StartTime = bookingRequest.StartTime,
+                EndTime = bookingEndTime,
+                Status = "Pending"
+            };
+
+            // Add the booking to the database
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBooking", new { id = booking.Id }, booking);
+            return CreatedAtAction(nameof(PostBooking), new { id = booking.Id }, booking);
+        }
+
+        // See my next bookings for a teacher or student , identified by userId in token bearer auth
+        [HttpGet("me")]
+        public async Task<ActionResult<IEnumerable<Booking>>> GetMyBookings()
+        {
+            // Assuming you have a way to get the userId from the token bearer auth
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Fetch bookings for the user (either as a teacher or student)
+            var bookings = await _context.Bookings
+                .Where(b => b.StudentId.ToString() == userId || b.Calendar.TeacherId.ToString() == userId)
+                .ToListAsync();
+
+            return Ok(bookings);
         }
 
         // DELETE: api/Bookings/5
@@ -102,6 +166,15 @@ namespace MusicSchoolBookingSystem.Controllers
         private bool BookingExists(int id)
         {
             return _context.Bookings.Any(e => e.Id == id);
+        }
+
+        // Booking request for a calendar slot
+        public class BookingRequest
+        {
+            public int TeacherId { get; set; } // Foreign key linking to Teacher
+            public int StudentId { get; set; } // Foreign key linking to Student
+            public DateTime StartTime { get; set; } // Booking start time
+            public int Duration { get; set; } // Duration in minutes
         }
     }
 }

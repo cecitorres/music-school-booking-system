@@ -42,7 +42,7 @@ namespace MusicSchoolBookingSystem.Controllers
                 return Unauthorized("Invalid email or password.");
             }
             // Generate JWT token
-            var token = _jwtService.GenerateToken(user.Email, user.Role);
+            var token = _jwtService.GenerateToken(user);
 
                 // return Ok(new { Token = token });
             // Return the token and user information
