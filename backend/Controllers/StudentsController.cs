@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicSchoolBookingSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace MusicSchoolBookingSystem.Controllers
 {
@@ -21,10 +23,24 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // GET: api/Students
+        [Authorize(Roles = "Admin, Teacher")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
         {
-            return await _context.Students.ToListAsync();
+            // Get List of Students, and add info from Users table
+            var students = await _context.Students
+                .Include(s => s.User) // Include the User navigation property
+                .Select(s => new StudentResponse
+                {
+                    Id = s.Id,
+                    FullName = $"{s.User.FirstName} {s.User.LastName}",
+                    Email = s.User.Email,
+                    PhoneNumber = s.User.PhoneNumber
+                })
+                .ToListAsync();
+
+            // Return the list of students
+            return Ok(students);
         }
 
         // GET: api/Students/5
@@ -103,5 +119,13 @@ namespace MusicSchoolBookingSystem.Controllers
         {
             return _context.Students.Any(e => e.Id == id);
         }
+    }
+
+    public class StudentResponse
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
