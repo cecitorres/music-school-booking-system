@@ -4,7 +4,7 @@ using MusicSchoolBookingSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
-
+using System.Security.Claims;
 
 namespace MusicSchoolBookingSystem.Controllers
 {
@@ -64,6 +64,7 @@ namespace MusicSchoolBookingSystem.Controllers
 
         // Register endpoint
         [HttpPost("register")]
+        [Authorize(Roles = "Admin, Teacher")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
             // Validate the user input
@@ -74,10 +75,6 @@ namespace MusicSchoolBookingSystem.Controllers
             if (await _context.Users.AnyAsync(u => u.Email == registerRequest.Email))
             {
                 return Conflict("Email already exists.");
-            }
-            if (string.IsNullOrEmpty(registerRequest.Role))
-            {
-                return BadRequest("Role is required.");
             }
             if (string.IsNullOrEmpty(registerRequest.PhoneNumber))
             {
@@ -91,8 +88,25 @@ namespace MusicSchoolBookingSystem.Controllers
             {
                 return BadRequest("Last name is required.");
             }
+            if (string.IsNullOrEmpty(registerRequest.Role))
+            {
+                return BadRequest("Role is required.");
+            }
+            if (registerRequest.Role != "Admin" && registerRequest.Role != "Teacher" && registerRequest.Role != "Student")
+            {
+                return BadRequest("Invalid role.");
+            }
 
-            // Hash the password (you should use a proper hashing algorithm)
+            // Admins can register other Admins, Teachers, and Students
+            // Teachers can register only Students
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            if (currentUserRole == "Teacher" && registerRequest.Role != "Student")
+            {
+                return Forbid("You are not authorized to register this role.");
+            }
+
+            // Hash the password
             var user = new User
             {
                 Email = registerRequest.Email,
@@ -107,7 +121,39 @@ namespace MusicSchoolBookingSystem.Controllers
             // Save the user to the database
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Login), new { email = user.Email }, user);
+            
+            // We need to create a new Teacher or Student entity based on the role
+            // And use the user ID to link them
+            if (registerRequest.Role == "Teacher")
+            {
+                var teacher = new Teacher
+                {
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Teachers.Add(teacher);
+            }
+            else if (registerRequest.Role == "Student")
+            {
+                var student = new Student
+                {
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Students.Add(student);
+            }
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                user.Id,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.PhoneNumber,
+                user.Role,
+                user.CreatedAt
+            });
         }
 
         // Edit user endpoint
