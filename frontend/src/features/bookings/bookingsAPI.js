@@ -1,0 +1,43 @@
+import { API_BASE_URL } from '../../config'
+
+const baseUrl = `${API_BASE_URL}/api/bookings`;
+
+export async function createBooking(data) {
+  const res = await fetch(baseUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Error booking class');
+  return await res.json();
+}
+
+export async function fetchMyBookings() {
+  const res = await fetch(`${baseUrl}/me`);
+  if (!res.ok) throw new Error('Error fetching my bookings');
+  return await res.json();
+}
+
+export async function fetchHistory() {
+  const res = await fetch(`${baseUrl}/history`);
+  if (!res.ok) throw new Error('Error fetching history');
+  return await res.json();
+}
+
+export async function updateBookingStatus({ id, status }) {
+  const res = await fetch(`${baseUrl}/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error('Error updating booking status');
+  return await res.json();
+}
+
+export async function cancelBooking(id) {
+  const res = await fetch(`${baseUrl}/${id}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Error cancelling booking');
+  return await res.json();
+}

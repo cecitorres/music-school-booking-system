@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import teacherReducer from '../features/teacher/teacherSlice';
-import calendarReducer from '../features/calendar/calendarSlice';
+import authReducer from '../features/auth/authSlice';
+import teachersReducer from '../features/teachers/teachersSlice';
+import bookingsReducer from '../features/bookings/bookingsSlice';
+import availabilityReducer from '../features/availability/availabilitySlice';
 
 export const store = configureStore({
   reducer: {
-    teacher: teacherReducer,
-    calendar: calendarReducer,
+    auth: authReducer,
+    teachers: teachersReducer,
+    bookings: bookingsReducer,
+    availability: availabilityReducer,
   },
 });

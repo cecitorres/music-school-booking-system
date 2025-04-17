@@ -30,6 +30,12 @@ const App = () => {
         <Route element={<ProtectedRoute user={user} role="admin" />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
+        {/* Registration Route */}
+        <Route path="/register" element={<RegisterPage />} />
+
+        
+        {/* Teacher List Route */}
+        <Route path="/teachers" element={<TeacherList />} />
 
         {/* Fallback Route */}
         <Route path="*" element={<div>404 Not Found</div>} />
