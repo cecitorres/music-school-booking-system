@@ -339,6 +339,78 @@ namespace MusicSchoolBookingSystem.Controllers
             return NoContent();
         }
 
+        // GET: /api/bookings/history
+        [Authorize(Roles = "Teacher, Student")]
+        [HttpGet("history")]
+        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingHistory()
+        {
+            try {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var now = DateTime.UtcNow;
+
+                IQueryable<Booking> query;
+
+                if (User.IsInRole("Student"))
+                {
+                    var student = await _context.Students
+                        .FirstOrDefaultAsync(s => s.UserId.ToString() == userId);
+
+                    if (student == null)
+                        return NotFound("Student profile not found.");
+
+                    Console.WriteLine("User is a Student with ID: " + student.Id + " and UserId: " + userId);
+                    query = _context.Bookings
+                        .Where(b => b.StudentId == student.Id &&
+                                    (b.Status == "Completed" || b.Status == "Cancelled") &&
+                                    b.EndTime <= now);
+                }
+                else if (User.IsInRole("Teacher"))
+                {
+                    var teacher = await _context.Teachers
+                        .FirstOrDefaultAsync(t => t.UserId.ToString() == userId);
+
+                    if (teacher == null)
+                        return NotFound("Teacher profile not found.");
+
+                    query = _context.Bookings
+                        .Where(b => b.Calendar.TeacherId == teacher.Id &&
+                                    (b.Status == "Completed" || b.Status == "Cancelled") &&
+                                    b.EndTime <= now);
+                }
+                else
+                {
+                    return Forbid();
+                }
+
+                var bookings = await query
+                    .Include(b => b.Student)
+                        .ThenInclude(s => s.User)
+                    .Include(b => b.Calendar)
+                        .ThenInclude(c => c.Teacher)
+                            .ThenInclude(t => t.User)
+                    .ToListAsync();
+
+                // Format the bookings to include student and teacher names
+                var bookingHistory = bookings.Select(b => new BookingResponseDto
+                {
+                    Id = b.Id,
+                    TeacherName = $"{b.Calendar.Teacher.User.FirstName} {b.Calendar.Teacher.User.LastName}",
+                    StudentName = $"{b.Student.User.FirstName} {b.Student.User.LastName}",
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    Status = b.Status
+                }).ToList();
+                return Ok(bookingHistory);
+            } catch (Exception ex) {                
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+
         private bool BookingExists(int id)
         {
             return _context.Bookings.Any(e => e.Id == id);
