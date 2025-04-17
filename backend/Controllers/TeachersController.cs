@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicSchoolBookingSystem.Models;
+using System.Security.Claims;
 
 namespace MusicSchoolBookingSystem.Controllers
 {
@@ -278,6 +279,45 @@ namespace MusicSchoolBookingSystem.Controllers
             {
                 return StatusCode(500, "An error occurred while processing your request.");
             }
+        }
+
+        // DELETE: api/teachers/{teacherId}/availability/{slotId}
+        [Authorize(Roles = "Admin, Teacher")]
+        [HttpDelete("{teacherId}/availability/{slotId}")]
+        public async Task<IActionResult> DeleteCalendarSlot(int teacherId, int slotId)
+        {
+            // Check if user is authorized to delete the slot
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!User.IsInRole("Admin") && userId != teacherId.ToString())
+            {
+                return Forbid("You are not authorized to delete this availability slot.");
+            }
+
+            var calendarSlot = await _context.Calendars
+                .FirstOrDefaultAsync(c => c.Id == slotId && c.TeacherId == teacherId);
+
+            if (calendarSlot == null)
+            {
+                return NotFound($"Calendar slot not found");
+            }            
+
+            if (calendarSlot.StartTime <= DateTime.UtcNow)
+            {
+                return BadRequest("Cannot delete a slot that has already started or is in the past.");
+            }
+
+            var hasBookings = await _context.Bookings
+                .AnyAsync(b => b.CalendarId == slotId && b.Status != "Cancelled");
+
+            if (hasBookings)
+            {
+                return BadRequest("Cannot delete a calendar slot that has bookings.");
+            }
+
+            _context.Calendars.Remove(calendarSlot);
+            await _context.SaveChangesAsync();
+            
+            return NoContent();
         }
 
         private bool TeacherExists(int id)
