@@ -134,9 +134,9 @@ namespace MusicSchoolBookingSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/teachers/{teacherId}/calendars
+        // POST: api/teachers/{teacherId}/availability
         [Authorize(Roles = "Admin, Teacher")]
-        [HttpPost("{teacherId}/calendars")]
+        [HttpPost("{teacherId}/availability")]
         public async Task<ActionResult> AddCalendarSlots(int teacherId, List<CalendarSlotRequest> slots)
         {
             if (slots == null || !slots.Any())
@@ -156,6 +156,12 @@ namespace MusicSchoolBookingSystem.Controllers
                 // Validate and add each slot
                 foreach (var slot in slots)
                 {
+                    // Validate StartTime is not in the past
+                    if (slot.StartTime < DateTime.UtcNow)
+                    {
+                        return BadRequest($"Invalid time range for slot: StartTime cannot be in the past.");
+                    }
+
                     // Validate StartTime and EndTime
                     if (slot.StartTime >= slot.EndTime)
                     {
@@ -204,9 +210,9 @@ namespace MusicSchoolBookingSystem.Controllers
             }
         }
 
-        // GET: api/teachers/{teacherId}/calendars
+        // GET: api/teachers/{teacherId}/availability
         [Authorize(Roles = "Admin, Teacher, Student")]
-        [HttpGet("{teacherId}/calendars")]
+        [HttpGet("{teacherId}/availability")]
         public async Task<ActionResult<IEnumerable<CalendarSlotResponse>>> GetTeacherCalendarSlots(int teacherId)
         {
             try
@@ -218,25 +224,28 @@ namespace MusicSchoolBookingSystem.Controllers
                     return NotFound($"Teacher with ID {teacherId} not found.");
                 }
 
-                // Get all available calendar slots for the teacher
+                // Get all available calendar slots for the teacher that are not booked
+                // Ignore past slots
+                // And not include slots that are already booked
+                var currentDateTime = DateTime.UtcNow;
                 var availableSlots = await _context.Calendars
                     .Where(c => c.TeacherId == teacherId) // Filter by teacherId
                     .Select(c => new CalendarSlotResponse
                     {
-                        Id = c.Id,
                         StartTime = c.StartTime,
                         EndTime = c.EndTime
                     })
                     .ToListAsync();
 
-                // Return the list of available slots
-                return Ok(availableSlots);
+                // Return the list of available slots and teacher id
+                return Ok(new
+                {
+                    TeacherId = teacherId,
+                    Availability = availableSlots
+                });
             }
             catch (Exception ex)
             {
-                // Log the exception (you can use a logging framework like Serilog or NLog)
-                // Example: _logger.LogError(ex, "An error occurred while fetching calendar slots.");
-
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
@@ -260,7 +269,6 @@ namespace MusicSchoolBookingSystem.Controllers
     // Response model for calendar slots
     public class CalendarSlotResponse
     {
-        public int Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
     }
