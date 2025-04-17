@@ -224,25 +224,55 @@ namespace MusicSchoolBookingSystem.Controllers
                     return NotFound($"Teacher with ID {teacherId} not found.");
                 }
 
-                // Get all available calendar slots for the teacher that are not booked
-                // Ignore past slots
-                // And not include slots that are already booked
-                var currentDateTime = DateTime.UtcNow;
-                var availableSlots = await _context.Calendars
-                    .Where(c => c.TeacherId == teacherId) // Filter by teacherId
-                    .Select(c => new CalendarSlotResponse
+                // Get the teacher's calendar slots (ignoring past slots)
+                var calendarSlots = await _context.Calendars
+                    .Where(c => c.TeacherId == teacherId && c.StartTime >= DateTime.UtcNow)
+                    .Select(c => new
                     {
+                        Id = c.Id,
                         StartTime = c.StartTime,
                         EndTime = c.EndTime
                     })
                     .ToListAsync();
 
-                // Return the list of available slots and teacher id
-                return Ok(new
+                var availability = new List<CalendarSlotResponse>();
+
+                foreach (var slot in calendarSlots)
                 {
-                    TeacherId = teacherId,
-                    Availability = availableSlots
-                });
+                    var bookings = await _context.Bookings
+                        .Where(b => b.CalendarId == slot.Id && b.Status == "Accepted")
+                        .Where(b => b.StartTime < slot.EndTime && b.EndTime > slot.StartTime)
+                        .OrderBy(b => b.StartTime)
+                        .ToListAsync();
+
+                    var currentStart = slot.StartTime;
+
+                    foreach (var booking in bookings)
+                    {
+                        if (booking.StartTime > currentStart)
+                        {
+                            availability.Add(new CalendarSlotResponse
+                            {
+                                StartTime = currentStart,
+                                EndTime = booking.StartTime
+                            });
+                        }
+
+                        currentStart = booking.EndTime > currentStart ? booking.EndTime : currentStart;
+                    }
+
+                    if (currentStart < slot.EndTime)
+                    {
+                        availability.Add(new CalendarSlotResponse
+                        {
+                            StartTime = currentStart,
+                            EndTime = slot.EndTime
+                        });
+                    }
+                }
+
+                return Ok(availability);
+                
             }
             catch (Exception ex)
             {
