@@ -120,9 +120,25 @@ namespace MusicSchoolBookingSystem.Controllers
                 return BadRequest("Teacher is not available for the requested time.");
             }
 
+            // Validate the student does not already have a booking for this time slot
+            var duplicateBooking = await _context.Bookings
+                .Where(b => b.StudentId == bookingRequest.StudentId
+                    && b.CalendarId == calendar.Id
+                    && b.StartTime == bookingRequest.StartTime
+                    && b.EndTime == bookingEndTime)
+                .FirstOrDefaultAsync();
+
+            if (duplicateBooking != null)
+            {
+                return BadRequest("You have already requested a booking for this time slot.");
+            }
+
             // Validate the booking does not overlap with existing bookings
             var existingBooking = await _context.Bookings
-                .Where(b => b.CalendarId == calendar.Id && b.StartTime < bookingEndTime && bookingRequest.StartTime < b.EndTime)
+                .Where(b => b.CalendarId == calendar.Id
+                    && b.Status == "Accepted"
+                    && b.StartTime < bookingEndTime
+                    && bookingRequest.StartTime < b.EndTime)
                 .FirstOrDefaultAsync();
             if (existingBooking != null)
             {
@@ -143,7 +159,16 @@ namespace MusicSchoolBookingSystem.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(PostBooking), new { id = booking.Id }, booking);
+            // Return booking id, student id, start time, end time, status with a 201 Created response
+
+            return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, new 
+            {
+                Id = booking.Id,                
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                Status = booking.Status
+            });
+            // return CreatedAtAction(nameof(PostBooking), new { id = booking.Id }, booking);
         }
 
         // See my next bookings for a teacher or student , identified by userId in token bearer auth
