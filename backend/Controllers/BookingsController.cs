@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicSchoolBookingSystem.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MusicSchoolBookingSystem.Controllers
 {
@@ -22,10 +23,28 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // GET: api/Bookings
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Booking>>> GetBookings()
         {
-            return await _context.Bookings.ToListAsync();
+            
+            // Get List of Bookings, and add info from Users table
+            var bookings = await _context.Bookings
+                .Include(b => b.Calendar)
+                .ThenInclude(c => c.Teacher)
+                .Include(b => b.Student)
+                .Select(b => new BookingResponseDto
+                {
+                    Id = b.Id,
+                    TeacherName = $"{b.Calendar.Teacher.User.FirstName} {b.Calendar.Teacher.User.LastName}",
+                    StudentName = $"{b.Student.User.FirstName} {b.Student.User.LastName}",
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    Status = b.Status
+                })
+                .ToListAsync();
+
+            return Ok(bookings);
         }
 
         // GET: api/Bookings/5
@@ -218,6 +237,16 @@ namespace MusicSchoolBookingSystem.Controllers
             public int StudentId { get; set; } // Foreign key linking to Student
             public DateTime StartTime { get; set; } // Booking start time
             public int Duration { get; set; } // Duration in minutes
+        }
+
+        public class BookingResponseDto
+        {
+            public int Id { get; set; }
+            public string TeacherName { get; set; }
+            public string StudentName { get; set; }
+            public DateTime StartTime { get; set; }
+            public DateTime EndTime { get; set; }
+            public string Status { get; set; }
         }
     }
 }
