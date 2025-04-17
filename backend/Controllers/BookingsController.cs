@@ -277,16 +277,63 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // DELETE: api/Bookings/5
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
+            var booking = await _context.Bookings
+                .Include(b => b.Calendar)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (booking == null)
             {
                 return NotFound();
             }
 
-            _context.Bookings.Remove(booking);
+            // Check if booking is in the past
+            if (booking.EndTime <= DateTime.UtcNow)
+            {
+                return BadRequest("Cannot cancel a booking that has already ended.");
+            }
+
+            // Check if booking is less than 2 hours away
+            if (booking.StartTime <= DateTime.UtcNow.AddHours(2))
+            {
+                return BadRequest("You cannot cancel a class less than 2 hours before it starts.");
+            }
+
+            // Check if booking is already cancelled
+            if (booking.Status == "Cancelled")
+            {
+                return BadRequest("Booking is already cancelled.");
+            }
+
+            // Check if booking is Pending
+            if (booking.Status == "Pending")
+            {
+                return BadRequest("Booking is still pending and cannot be cancelled.");
+            }
+
+            // Check if booking is Rejected
+            if (booking.Status == "Rejected")
+            {
+                return BadRequest("Booking is already rejected and cannot be cancelled.");
+            }
+
+            // Check if the user is authorized to delete the booking
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (User.IsInRole("Student") && booking.StudentId.ToString() != userId)
+            {
+                return Forbid("Students can only cancel their own bookings.");
+            }
+
+            if (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId)
+            {
+                return Forbid("Teachers can only cancel their own calendar bookings.");
+            }
+
+
+            booking.Status = "Cancelled";
             await _context.SaveChangesAsync();
 
             return NoContent();
