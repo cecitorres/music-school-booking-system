@@ -171,11 +171,11 @@ namespace MusicSchoolBookingSystem.Controllers
             // return CreatedAtAction(nameof(PostBooking), new { id = booking.Id }, booking);
         }
 
-        // See my next bookings for a teacher or student , identified by userId in token bearer auth
+        // GET: /api/bookings/me
+        [Authorize(Roles = "Teacher, Student")]
         [HttpGet("me")]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetMyBookings()
+        public async Task<ActionResult<IEnumerable<Booking>>> GetMyUpcomingBookings()
         {
-            // Assuming you have a way to get the userId from the token bearer auth
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
@@ -183,12 +183,52 @@ namespace MusicSchoolBookingSystem.Controllers
                 return Unauthorized();
             }
 
-            // Fetch bookings for the user (either as a teacher or student)
-            var bookings = await _context.Bookings
-                .Where(b => b.StudentId.ToString() == userId || b.Calendar.TeacherId.ToString() == userId)
+            var now = DateTime.UtcNow;
+
+            // Base query
+            IQueryable<Booking> query = _context.Bookings
+                .Include(b => b.Student)
+                    .ThenInclude(s => s.User)
+                .Include(b => b.Calendar)
+                    .ThenInclude(c => c.Teacher)
+                        .ThenInclude(t => t.User)
+                .Where(b =>
+                    b.Status != "Cancelled" &&
+                    b.EndTime >= now
+                );
+
+            if (User.IsInRole("Student"))
+            {
+                var student = await _context.Students
+                    .FirstOrDefaultAsync(s => s.UserId.ToString() == userId);
+
+                if (student == null) return NotFound("Student profile not found.");
+
+                query = query.Where(b => b.StudentId == student.Id);
+            }
+            else if (User.IsInRole("Teacher"))
+            {
+                var teacher = await _context.Teachers
+                    .FirstOrDefaultAsync(t => t.UserId.ToString() == userId);
+
+                if (teacher == null) return NotFound("Teacher profile not found.");
+
+                query = query.Where(b => b.Calendar.TeacherId == teacher.Id);
+            }
+
+            var bookings = await query
+                .OrderBy(b => b.StartTime)
                 .ToListAsync();
 
-            return Ok(bookings);
+            return Ok(bookings.Select(b => new BookingResponseDto
+            {
+                Id = b.Id,
+                TeacherName = $"{b.Calendar.Teacher.User.FirstName} {b.Calendar.Teacher.User.LastName}",
+                StudentName = $"{b.Student.User.FirstName} {b.Student.User.LastName}",
+                StartTime = b.StartTime,
+                EndTime = b.EndTime,
+                Status = b.Status
+            }));
         }
 
         // GET /api/bookings/{id}/status
