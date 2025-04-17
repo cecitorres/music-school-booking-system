@@ -191,6 +191,48 @@ namespace MusicSchoolBookingSystem.Controllers
             return Ok(bookings);
         }
 
+        // GET /api/bookings/{id}/status
+        [Authorize(Roles = "Admin, Teacher, Student")]
+        [HttpGet("{id}/status")]
+        public async Task<IActionResult> GetBookingStatus(int id)
+        {
+            // try catch
+            try {
+            // Include Student Name and Teacher Name in the response
+            var booking = await _context.Bookings
+                .Include(b => b.Student)
+                    .ThenInclude(s => s.User) // Include Student's User
+                .Include(b => b.Calendar)
+                    .ThenInclude(c => c.Teacher)
+                        .ThenInclude(t => t.User) // Include Teacher's User
+                .FirstOrDefaultAsync(b => b.Id == id);
+            
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the user is authorized to view the booking status
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId) &&
+                (User.IsInRole("Student") && booking.StudentId.ToString() != userId))
+            {
+                return Forbid("You are not authorized to view this booking status.");
+            }
+
+            return Ok(new {
+                Id = booking.Id,
+                Status = booking.Status,
+                StudentName = $"{booking.Student.User.FirstName} {booking.Student.User.LastName}",
+                TeacherName = $"{booking.Calendar.Teacher.User.FirstName} {booking.Calendar.Teacher.User.LastName}",
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+            });
+            } catch (Exception ex) {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
         // PATCH /api/bookings/{id}/status
         [Authorize(Roles = "Admin, Teacher")]
         [HttpPatch("{id}/status")]
