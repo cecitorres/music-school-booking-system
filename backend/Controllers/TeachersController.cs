@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,28 +23,59 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // GET: api/teachers
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Teacher>>> GetTeachers()
         {
-            return await _context.Teachers.ToListAsync();
+            // Get List of Teachers, and add info from Users table
+            var teachers = await _context.Teachers
+                .Include(t => t.User) // Include the User navigation property
+                .Select(t => new TeacherResponse
+                {
+                    Id = t.Id,
+                    FullName = $"{t.User.FirstName} {t.User.LastName}",
+                    Email = t.User.Email,
+                    PhoneNumber = t.User.PhoneNumber,
+                    Instruments = string.IsNullOrEmpty(t.Instruments) ? "Not specified" : t.Instruments
+                })
+                .ToListAsync();
+
+            return Ok(teachers);
         }
 
-        // GET: api/teachers/5
+        // GET: api/teachers/5        
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Teacher>> GetTeacher(int id)
         {
             var teacher = await _context.Teachers.FindAsync(id);
+            
 
             if (teacher == null)
             {
                 return NotFound();
             }
 
-            return teacher;
+            // Include the User navigation property to get user details
+            var teacherDetails = await _context.Teachers
+                .Include(t => t.User) // Include the User navigation property
+                .Where(t => t.Id == id)
+                .Select(t => new TeacherResponse
+                {
+                    Id = t.Id,
+                    FullName = $"{t.User.FirstName} {t.User.LastName}",
+                    Email = t.User.Email,
+                    PhoneNumber = t.User.PhoneNumber,
+                    Instruments = string.IsNullOrEmpty(t.Instruments) ? "Not specified" : t.Instruments
+                })
+                .FirstOrDefaultAsync();
+
+            return Ok(teacherDetails);
         }
 
         // PUT: api/teachers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin, Teacher")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTeacher(int id, Teacher teacher)
         {
@@ -75,6 +107,7 @@ namespace MusicSchoolBookingSystem.Controllers
 
         // POST: api/teachers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Teacher>> PostTeacher(Teacher teacher)
         {
@@ -85,6 +118,7 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // DELETE: api/teachers/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeacher(int id)
         {
@@ -101,6 +135,7 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // POST: api/teachers/{teacherId}/calendars
+        [Authorize(Roles = "Admin, Teacher")]
         [HttpPost("{teacherId}/calendars")]
         public async Task<ActionResult> AddCalendarSlots(int teacherId, List<CalendarSlotRequest> slots)
         {
@@ -170,6 +205,7 @@ namespace MusicSchoolBookingSystem.Controllers
         }
 
         // GET: api/teachers/{teacherId}/calendars
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpGet("{teacherId}/calendars")]
         public async Task<ActionResult<IEnumerable<CalendarSlotResponse>>> GetTeacherCalendarSlots(int teacherId)
         {
@@ -219,7 +255,7 @@ namespace MusicSchoolBookingSystem.Controllers
 
         [Required]
         public DateTime EndTime { get; set; }
-    }    
+    }
 
     // Response model for calendar slots
     public class CalendarSlotResponse
@@ -227,5 +263,14 @@ namespace MusicSchoolBookingSystem.Controllers
         public int Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+    }
+
+    public class TeacherResponse
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Instruments { get; set; }
     }
 }
