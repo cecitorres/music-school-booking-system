@@ -17,3 +17,13 @@ export async function fetchTeacherDetail(id) {
 
   return await res.json();
 }
+
+export async function fetchTeacherAvailability(id) {
+  const res = await authorizedFetch(`/api/teachers/${id}/availability`);
+
+  if (!res.ok) {
+    throw new Error('Error fetching teacher availability');
+  }
+
+  return await res.json();
+}
