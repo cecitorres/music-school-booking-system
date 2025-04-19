@@ -1,19 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginAPI } from './authAPI';
+import { loginAPI, registerUser } from './authAPI';
 
-export const login = createAsyncThunk('auth/login', async (credentials) => {
-  const response = await loginAPI(credentials);
+export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await loginAPI(credentials);
 
-//   if (!response.ok) {
-//     throw new Error(response.message || 'Login failed');
-//   }
+    localStorage.setItem('token', response.token);
 
-  console.log('token', response.token, response)
-
-  localStorage.setItem('token', response.token);
-
-  return response;
+    return response;
+  } catch (e) {
+    return rejectWithValue(e.response?.data?.error || 'Login failed');
+  }
 });
+
+export const register = createAsyncThunk('auth/register', registerUser);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -33,6 +33,7 @@ const authSlice = createSlice({
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
+        state.error = null; // Clear previous errors
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
@@ -41,7 +42,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload; // Set the error message
       });
   },
 });

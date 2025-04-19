@@ -7,10 +7,12 @@ export async function loginAPI(credentials) {
       body: JSON.stringify(credentials),
     });
   
-    // if (!response.ok) {
-    //   throw new Error('Login failed');
-    // }
+  if (!response.ok) {
+    throw new Error('Login failed');
+  }
   
-    return await response.json(); // { user, token }
+  return await response.json();
+}
+
   }
   
