@@ -1,22 +1,25 @@
 // src/App.js
-import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // Import useSelector
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import TeacherPage from './pages/TeacherPage';
 import StudentPage from './pages/StudentPage';
 import AdminPage from './pages/AdminPage';
 import HomePage from './pages/HomePage';
+import RegisterPage from './pages/RegisterPage';
+import TeacherList from './features/teachers/TeacherList';
 
 const App = () => {
-  const [user, setUser] = useState({id: 1, role: 'teacher'});
+  // Access user from Redux store
+  const user = useSelector((state) => state.auth.user);
 
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/login" element={<Login />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute user={user} role="teacher" />}>
@@ -30,10 +33,10 @@ const App = () => {
         <Route element={<ProtectedRoute user={user} role="admin" />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
+
         {/* Registration Route */}
         <Route path="/register" element={<RegisterPage />} />
 
-        
         {/* Teacher List Route */}
         <Route path="/teachers" element={<TeacherList />} />
 
