@@ -15,7 +15,6 @@ const TeacherList = () => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
-    console.log(teachers);
     if (!teachers || teachers.length === 0) {
         return <p>No teachers available.</p>;
     }

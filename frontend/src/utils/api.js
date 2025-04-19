@@ -20,5 +20,5 @@ export async function authorizedFetch(endpoint, options = {}) {
     throw new Error(error.message || 'Request failed');
   }
 
-  return response.json();
+  return response;
 }

@@ -1,27 +1,27 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTeacherInfo } from '../features/teacher/teacherSlice';
+import { getTeacherDetail } from '../features/teachers/teachersSlice';
 
-const TeacherInfo = ({ teacherId }) => {
+const TeacherInfo = () => {
   const dispatch = useDispatch();
-  const { data, status, error } = useSelector((state) => state.teacher);
+  const teacherId = useSelector((state) => state.auth.user?.teacherId);
+  const data = useSelector((state) => state.teachers.selectedTeacher);
 
   useEffect(() => {
-    dispatch(fetchTeacherInfo(teacherId));
+    dispatch(getTeacherDetail(teacherId));
   }, [dispatch, teacherId]);
 
-  if (status === 'loading') return <div>Loading...</div>;
-  if (status === 'failed') return <div>Error: {error}</div>;
-  console.log(data)
+  if (!data) return <div>No teacher information available</div>;
   return (
     <div>
       {/* Fake avatar image */}
       <img
-        src={`https://i.pravatar.cc/150?u=${teacherId}011`}
+        src={`https://i.pravatar.cc/150?u=${teacherId}`}
         alt="Teacher avatar" />
-      <h2>{data.name}</h2>
+      <h2>{data.fullName}</h2>
       <p>{data.email}</p>
+      <p>{data.phoneNumber}</p>
     </div>
   );
 };

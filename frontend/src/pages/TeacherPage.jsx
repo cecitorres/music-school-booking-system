@@ -1,37 +1,56 @@
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux'; // Import useSelector
 import TeacherInfo from '../components/TeacherInfo';
 import CalendarView from '../components/CalendarView';
 import AddSlotForm from '../components/AddSlotForm';
 import LogoutButton from '../components/LogoutButton';
+import NextBookings from '../components/NextBookings';
 
-const TeacherPage = ({ teacherId, setUser }) => {
+const TeacherPage = () => {
+  // Access teacherId from Redux store
+  const teacherId = useSelector((state) => state.auth.user?.teacherId);
+
   return (
     <div className="teacher-page">
       <h1>Teacher Dashboard</h1>
-      <LogoutButton setUser={setUser} />
+      {/* <LogoutButton /> */}
 
       {/* Teacher Information Section */}
       <section className="teacher-info-section">
         <h2>Teacher Information</h2>
-        <TeacherInfo teacherId={teacherId} />
+        {teacherId ? (
+          <TeacherInfo teacherId={teacherId} />
+        ) : (
+          <p>Loading teacher information...</p>
+        )}
       </section>
+
+      {/* Next classes (confirmed and pending confirm) */}
+      {/* <section className="next-classes-section">
+        <h2>Next Classes</h2>
+        <NextBookings />
+      </section> */}
 
       {/* Available Slots Section */}
-      <section className="available-slots-section">
+      {/* <section className="available-slots-section">
         <h2>Available Slots</h2>
-        <CalendarView teacherId={teacherId} />
-      </section>
+        {teacherId ? (
+          <CalendarView teacherId={teacherId} />
+        ) : (
+          <p>Loading available slots...</p>
+        )}
+      </section> */}
 
       {/* Add Slot Form Section */}
-      <section className="add-slot-section">
+      {/* <section className="add-slot-section">
         <h2>Add New Slot</h2>
-        <AddSlotForm teacherId={teacherId} />
-      </section>
+        {teacherId ? (
+          <AddSlotForm teacherId={teacherId} />
+        ) : (
+          <p>Loading add slot form...</p>
+        )}
+      </section> */}
     </div>
   );
 };
 
-TeacherPage.propTypes = {
-  teacherId: PropTypes.string.isRequired,
-};
 export default TeacherPage;
