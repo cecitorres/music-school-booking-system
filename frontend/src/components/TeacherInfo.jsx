@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTeacherDetail } from '../features/teachers/teachersSlice';
 
-const TeacherInfo = () => {
+const TeacherInfo = ({ teacherId}) => {
   const dispatch = useDispatch();
-  const teacherId = useSelector((state) => state.auth.user?.teacherId);
-  const data = useSelector((state) => state.teachers.selectedTeacher);
+  const {selectedTeacher: data} = useSelector((state) => state.teachers);
 
   useEffect(() => {
-    dispatch(getTeacherDetail(teacherId));
+    if (teacherId) {
+      dispatch(getTeacherDetail(teacherId));
+    }
   }, [dispatch, teacherId]);
 
   if (!data) return <div>No teacher information available</div>;
