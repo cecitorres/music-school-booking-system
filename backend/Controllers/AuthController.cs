@@ -30,28 +30,47 @@ namespace MusicSchoolBookingSystem.Controllers
             {
                 return BadRequest("Email and password are required.");
             }
+
             // Check if the user exists
             var user = _context.Users.SingleOrDefault(u => u.Email == request.Email);
             if (user == null)
             {
                 return Unauthorized("Invalid email or password.");
             }
+
             // Check if the password is correct
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 return Unauthorized("Invalid email or password.");
             }
+
+            // Determine the appropriate ID based on the user's role
+            int? teacherId = null;
+            int? studentId = null;
+
+            if (user.Role == "Teacher")
+            {
+                var teacher = _context.Teachers.SingleOrDefault(t => t.UserId == user.Id);
+                teacherId = teacher?.Id;
+            }
+            else if (user.Role == "Student")
+            {
+                var student = _context.Students.SingleOrDefault(s => s.UserId == user.Id);
+                studentId = student?.Id;
+            }
+
             // Generate JWT token
             var token = _jwtService.GenerateToken(user);
 
-                // return Ok(new { Token = token });
-            // Return the token and user information
+            // Return the token and user information with both UserId and role-specific ID
             return Ok(new
             {
                 Token = token,
                 User = new
                 {
                     user.Id,
+                    TeacherId = teacherId, // Include TeacherId if applicable
+                    StudentId = studentId, // Include StudentId if applicable
                     user.FirstName,
                     user.LastName,
                     user.Email,
@@ -74,7 +93,13 @@ namespace MusicSchoolBookingSystem.Controllers
             }
             if (await _context.Users.AnyAsync(u => u.Email == registerRequest.Email))
             {
-                return Conflict("Email already exists.");
+                // return error message like:
+                // {
+                //   "error": "Email already exists"
+                // }
+                return Conflict(new { error = "Email already exists" });
+
+                // return Conflict("Email already exists.");
             }
             if (string.IsNullOrEmpty(registerRequest.PhoneNumber))
             {
