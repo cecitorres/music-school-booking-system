@@ -9,6 +9,7 @@ import AdminPage from './pages/AdminPage';
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
 import TeacherList from './features/teachers/TeacherList';
+import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 
 const App = () => {
   // Access user from Redux store
@@ -29,6 +30,8 @@ const App = () => {
         <Route element={<ProtectedRoute user={user} role="student" />}>
           <Route path="/student" element={<StudentPage studentId={user?.id} />} />
         </Route>
+
+        <Route path='/teachers/:id' element={<TeacherDetailPage />} />
 
         <Route element={<ProtectedRoute user={user} role="admin" />}>
           <Route path="/admin" element={<AdminPage />} />

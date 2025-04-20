@@ -1,14 +1,17 @@
-import { API_BASE_URL } from '../../config'
+import { authorizedFetch } from '../../utils/api';
+import { API_BASE_URL } from '../../config';
 
 const baseUrl = `${API_BASE_URL}/api/bookings`;
 
 export async function createBooking(data) {
-  const res = await fetch(baseUrl, {
+  const res = await authorizedFetch('/api/bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Error booking class');
+  if (!res.ok) {
+    throw new Error('Error booking class');
+  }
   return await res.json();
 }
 
