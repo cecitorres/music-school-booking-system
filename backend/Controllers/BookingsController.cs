@@ -269,37 +269,54 @@ namespace MusicSchoolBookingSystem.Controllers
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] StatusUpdateRequest statusUpdateRequest)
         {
-            // Validate the status
-            if (statusUpdateRequest.Status != "Accepted" && statusUpdateRequest.Status != "Rejected")
+            try
             {
-                return BadRequest("Invalid status. Only 'Accepted' or 'Rejected' are allowed.");
-            }
+                if (statusUpdateRequest == null || string.IsNullOrEmpty(statusUpdateRequest.Status))
+                {
+                    return BadRequest(new { message = "Invalid status update request." });
+                }
 
-            var booking = await _context.Bookings.FindAsync(id);
-            if (booking == null)
+                // Include related entities
+                var booking = await _context.Bookings
+                    .Include(b => b.Calendar) // Include Calendar to avoid null reference
+                    .FirstOrDefaultAsync(b => b.Id == id);
+
+                if (booking == null)
+                {
+                    return NotFound(new { message = "Booking not found." });
+                }
+
+                // Check if the booking is already accepted or rejected
+                if (booking.Status == "Accepted" || booking.Status == "Rejected")
+                {
+                    return BadRequest(new { message = "Booking status has already been updated." });
+                }
+
+                // Check if the user is authorized to update the booking status
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || (User.IsInRole("Teacher") && (booking.Calendar == null || booking.Calendar.TeacherId.ToString() != userId)))
+                {
+                    return Forbid("You are not authorized to update this booking status.");
+                }
+
+                // Update the booking status
+                booking.Status = statusUpdateRequest.Status;
+                _context.Entry(booking).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    Id = booking.Id,
+                    Status = booking.Status
+                });
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                // Log the exception (you can replace this with your logging mechanism)
+                Console.WriteLine($"Error in UpdateBookingStatus: {ex.Message}");
+
+                return StatusCode(500, new { message = "An error occurred while processing your request." });
             }
-
-            // Check if the booking is already accepted or rejected
-            if (booking.Status == "Accepted" || booking.Status == "Rejected")
-            {
-                return BadRequest("Booking status has already been updated.");
-            }
-
-            // Check if the user is authorized to update the booking status
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId))
-            {
-                return Forbid("You are not authorized to update this booking status.");
-            }
-
-            // Update the booking status
-            booking.Status = statusUpdateRequest.Status;
-            _context.Entry(booking).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         public class StatusUpdateRequest
