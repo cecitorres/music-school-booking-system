@@ -12,9 +12,22 @@ const TeacherAvailability = ({ teacherId }) => {
     }
   }, [teacherId, dispatch]);
 
+  const formatDate = (time) => {
+    const date = new Date(time);
+    return date.toLocaleString([], {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   const formatTime = (time) => {
     const date = new Date(time);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   if (loading) {
@@ -35,7 +48,7 @@ const TeacherAvailability = ({ teacherId }) => {
       <ul>
         {availability.map((slot, index) => (
           <li key={index}>
-            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+            {formatDate(slot.startTime)}, {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
           </li>
         ))}
       </ul>
