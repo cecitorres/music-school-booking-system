@@ -16,7 +16,7 @@ export async function createBooking(data) {
 }
 
 export async function fetchMyBookings() {
-  const res = await fetch(`${baseUrl}/me`);
+  const res = await authorizedFetch('/api/bookings/me');
   if (!res.ok) throw new Error('Error fetching my bookings');
   return await res.json();
 }
@@ -28,7 +28,7 @@ export async function fetchHistory() {
 }
 
 export async function updateBookingStatus({ id, status }) {
-  const res = await fetch(`${baseUrl}/${id}/status`, {
+  const res = await authorizedFetch(`/api/bookings/${id}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),

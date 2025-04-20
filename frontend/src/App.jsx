@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
 import TeacherList from './features/teachers/TeacherList';
 import TeacherDetailPage from './features/teachers/TeacherDetailPage';
+import MyBookingsPage from './features/bookings/MyBookingsPage';
 
 const App = () => {
   // Access user from Redux store
@@ -42,6 +43,8 @@ const App = () => {
 
         {/* Teacher List Route */}
         <Route path="/teachers" element={<TeacherList />} />
+
+        <Route path='/bookings' element={<MyBookingsPage />} />
 
         {/* Fallback Route */}
         <Route path="*" element={<div>404 Not Found</div>} />
