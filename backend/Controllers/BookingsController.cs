@@ -96,20 +96,17 @@ namespace MusicSchoolBookingSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<Booking>> PostBooking(BookingRequest bookingRequest)
         {
-            // Validate booking request is for 60 minutes only (we only support 60 minutes for now)
             if (bookingRequest.Duration != 60)
             {
-                return BadRequest("Booking duration must be 60 minutes.");
+                return BadRequest(new { message = "Booking duration must be 60 minutes." });
             }
 
-            // Validate the teacher exists
             var teacher = await _context.Teachers.FindAsync(bookingRequest.TeacherId);
             if (teacher == null)
             {
-                return NotFound("Teacher not found.");
+                return NotFound(new { message = "Teacher not found." });
             }
 
-            // Validate the teacher's availability            
             var bookingEndTime = bookingRequest.StartTime.AddMinutes(bookingRequest.Duration);
             var calendar = await _context.Calendars
                 .Where(c => c.TeacherId == bookingRequest.TeacherId && c.StartTime <= bookingRequest.StartTime && c.EndTime >= bookingEndTime)
@@ -117,10 +114,9 @@ namespace MusicSchoolBookingSystem.Controllers
 
             if (calendar == null)
             {
-                return BadRequest("Teacher is not available for the requested time.");
+                return BadRequest(new { message = "Teacher is not available for the requested time." });
             }
 
-            // Validate the student does not already have a booking for this time slot
             var duplicateBooking = await _context.Bookings
                 .Where(b => b.StudentId == bookingRequest.StudentId
                     && b.CalendarId == calendar.Id
@@ -130,22 +126,21 @@ namespace MusicSchoolBookingSystem.Controllers
 
             if (duplicateBooking != null)
             {
-                return BadRequest("You have already requested a booking for this time slot.");
+                return BadRequest(new { message = "You have already requested a booking for this time slot." });
             }
 
-            // Validate the booking does not overlap with existing bookings
             var existingBooking = await _context.Bookings
                 .Where(b => b.CalendarId == calendar.Id
                     && b.Status == "Accepted"
                     && b.StartTime < bookingEndTime
                     && bookingRequest.StartTime < b.EndTime)
                 .FirstOrDefaultAsync();
+
             if (existingBooking != null)
             {
-                return BadRequest("Booking overlaps with an existing booking.");
+                return BadRequest(new { message = "Booking overlaps with an existing booking." });
             }
 
-            // Create a new booking
             var booking = new Booking
             {
                 CalendarId = calendar.Id,
@@ -155,20 +150,16 @@ namespace MusicSchoolBookingSystem.Controllers
                 Status = "Pending"
             };
 
-            // Add the booking to the database
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            // Return booking id, student id, start time, end time, status with a 201 Created response
-
-            return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, new 
+            return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, new
             {
-                Id = booking.Id,                
+                Id = booking.Id,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
                 Status = booking.Status
             });
-            // return CreatedAtAction(nameof(PostBooking), new { id = booking.Id }, booking);
         }
 
         // GET: /api/bookings/me
