@@ -3,9 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import TeacherDashboard from './components/TeacherDashboard';
-import StudentPage from './pages/StudentPage';
-import AdminPage from './pages/AdminPage';
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
 import TeacherList from './features/teachers/TeacherList';
@@ -32,21 +29,14 @@ const App = () => {
               <Route path="/teachers" element={<TeacherList />} />
               <Route path="/teachers/:id" element={<TeacherDetailPage />} />
 
-              {/* Admin Routes */}
-              <Route element={<ProtectedRoute user={user} role="admin" />}>
-                <Route path="/admin" element={<AdminPage />} />
-              </Route>
-
               {/* Teacher Routes */}
               <Route element={<ProtectedRoute user={user} role="teacher" />}>
-                <Route path="/teacher" element={<TeacherDashboard teacherId={user?.id} />} />
                 <Route path="/bookings" element={<MyBookingsPage />} />
                 <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
               </Route>
 
               {/* Student Routes */}
               <Route element={<ProtectedRoute user={user} role="student" />}>
-                <Route path="/student" element={<StudentPage studentId={user?.id} />} />
                 <Route path="/bookings" element={<MyBookingsPage />} />
               </Route>
 
