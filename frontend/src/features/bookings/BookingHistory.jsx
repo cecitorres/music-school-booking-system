@@ -10,7 +10,7 @@ const BookingHistory = ({ history }) => {
         return `${startTime} to ${endTime}`;
     };
     if (!history || history.length === 0) {
-        return <p>No booking history available.</p>
+        return <p className="text-center text-gray-400">You have no past classes.</p>
     }
     return (
         <section>
