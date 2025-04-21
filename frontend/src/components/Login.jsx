@@ -16,8 +16,8 @@ const Login = () => {
     e.preventDefault();
     dispatch(login({ email, password }))
       .unwrap()
-      .then((data) => {
-        navigate(`/${data.user.role}`);
+      .then(() => {
+        navigate('/');
       })
       .catch((err) => {
         console.error('Login failed:', err);
