@@ -30,12 +30,14 @@ const Navbar = () => {
             <>
               <Link to="/teacher/availability" className="transition hover:text-white">My Availability</Link>
               <Link to="/bookings" className="transition hover:text-white">Classes</Link>
+              <Link to="/register" className="transition hover:text-white">Register</Link>
             </>
           )}
 
           {isAuthenticated && user?.role === 'Admin' && (
             <>
               <Link to="/admin" className="transition hover:text-white">Admin Panel</Link>
+              <Link to="/register" className="transition hover:text-white">Register</Link>
             </>
           )}
         </div>
