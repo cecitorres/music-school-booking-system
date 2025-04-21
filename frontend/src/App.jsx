@@ -12,6 +12,7 @@ import TeacherList from './features/teachers/TeacherList';
 import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 import MyBookingsPage from './features/bookings/MyBookingsPage';
 import Navbar from './components/Navbar';
+import MyAvailabilityPage from './features/availability/MyAvailabilityPage';
 
 const App = () => {
   // Access user from Redux store
@@ -37,6 +38,7 @@ const App = () => {
         <Route element={<ProtectedRoute user={user} role="teacher" />}>
           <Route path="/teacher" element={<TeacherPage teacherId={user?.id} />} />
           <Route path="/bookings" element={<MyBookingsPage />} />
+          <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
         </Route>
 
         {/* Student Routes */}

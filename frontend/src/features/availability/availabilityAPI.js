@@ -1,7 +1,7 @@
-const baseUrl = '/api/availability';
+import { authorizedFetch } from '../../utils/api';
 
-export async function createAvailability(data) {
-  const res = await fetch(baseUrl, {
+export async function createAvailability({teacherId, data}) {
+  const res = await authorizedFetch(`/api/teachers/${teacherId}/availability`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -10,15 +10,10 @@ export async function createAvailability(data) {
   return await res.json();
 }
 
-export async function deleteAvailability(id) {
-  const res = await fetch(`${baseUrl}/${id}`, {
+export async function deleteAvailability({teacherId, id}) {
+  const res = await authorizedFetch(`/api/teachers/${teacherId}/availability/${id}`, {
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Error deleting availability');
 }
 
-export async function fetchTeacherAvailability(teacherId) {
-  const res = await fetch(`/api/teachers/${teacherId}/availability`);
-  if (!res.ok) throw new Error('Error fetching teacher availability');
-  return await res.json();
-}
