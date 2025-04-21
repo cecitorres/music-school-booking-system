@@ -1,18 +1,25 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import BookingsList from '../features/bookings/BookingsList';
+import UpcomingBookings from '../features/bookings/UpcomingBookings';
 import TeacherAvailability from '../features/teachers/TeacherAvailability';
 import BookingHistory from '../features/bookings/BookingHistory';
-import { getBookingHistory } from '../features/bookings/bookingsSlice';
+import RequestedBookings from '../features/bookings/RequestedBookings';
+import { getMyBookings, getBookingHistory } from '../features/bookings/bookingsSlice';
 
 const TeacherDashboard = () => {
   const dispatch = useDispatch();
-  const { history } = useSelector((state) => state.bookings);
+  const { upcoming, history, loading, error } = useSelector((state) => state.bookings);
   const teacherId = useSelector((state) => state.auth.user?.teacherId);
+  const currentUser = useSelector((state) => state.auth.user);
+
+  const requestedBookings = upcoming.filter((booking) => booking.status === 'Pending');
+
+  const upcomingBookings = upcoming.filter((booking) => booking.status === 'Accepted');
 
   useEffect(() => {
     if (teacherId) {
-      dispatch(getBookingHistory());      
+      dispatch(getMyBookings());
+      dispatch(getBookingHistory());
     }
   }, [teacherId, dispatch]);
 
@@ -22,9 +29,26 @@ const TeacherDashboard = () => {
         <h1 className="text-3xl font-bold text-center">Welcome to the Teacher Dashboard</h1>
 
         <section>
+          <h2 className="mb-4 text-2xl font-semibold">🔔 Requested Classes</h2>
+          <div className="p-4 bg-gray-800 rounded-lg shadow-md">
+            <RequestedBookings
+              bookings={requestedBookings}
+              loading={loading}
+              error={error}
+              userRole={currentUser.role}
+            />
+          </div>
+        </section>
+
+        <section>
           <h2 className="mb-4 text-2xl font-semibold">📅 Upcoming Classes</h2>
           <div className="p-4 bg-gray-800 rounded-lg shadow-md">
-            <BookingsList teacherId={teacherId} />
+            <UpcomingBookings
+              bookings={upcomingBookings}
+              loading={loading}
+              error={error}
+              userRole={currentUser.role}
+            />
           </div>
         </section>
 
