@@ -2,7 +2,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Login from './components/Login';
-import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
 import TeacherList from './features/teachers/TeacherList';
@@ -10,7 +9,6 @@ import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 import MyBookingsPage from './features/bookings/MyBookingsPage';
 import Navbar from './components/Navbar';
 import MyAvailabilityPage from './features/availability/MyAvailabilityPage';
-import './styles/AddSlotForm.css';
 
 const App = () => {
   const user = useSelector((state) => state.auth.user);
