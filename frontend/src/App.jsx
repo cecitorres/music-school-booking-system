@@ -22,23 +22,13 @@ const App = () => {
         <main className="flex-grow py-6">
           <div className="container px-4 mx-auto">
             <Routes>
-              {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/teachers" element={<TeacherList />} />
               <Route path="/teachers/:id" element={<TeacherDetailPage />} />
-
-              {/* Teacher Routes */}
-              <Route element={<ProtectedRoute user={user} role="teacher" />}>
-                <Route path="/bookings" element={<MyBookingsPage />} />
-                <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
-              </Route>
-
-              {/* Student Routes */}
-              <Route element={<ProtectedRoute user={user} role="student" />}>
-                <Route path="/bookings" element={<MyBookingsPage />} />
-              </Route>
+              <Route path="/bookings" element={<MyBookingsPage />} />
+              <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
 
               {/* Fallback Route */}
               <Route path="*" element={<div className="text-center text-gray-400">404 Not Found</div>} />
