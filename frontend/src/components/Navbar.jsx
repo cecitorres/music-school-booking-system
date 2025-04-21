@@ -14,8 +14,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 z-50 w-full text-gray-200 bg-gray-800 shadow-lg">
-      <div className="container flex items-center justify-between p-4 mx-auto">
+    <nav className="fixed top-0 left-0 z-50 w-full h-16 text-gray-200 bg-gray-800 shadow-lg">
+      <div className="container flex items-center justify-between h-full p-4 mx-auto">
         <div className="flex gap-6">
           <Link to="/" className="transition hover:text-white">Home</Link>
 

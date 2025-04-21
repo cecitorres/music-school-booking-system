@@ -52,32 +52,43 @@ const TeacherAddAvailability = ({ teacherId }) => {
   };
 
   return (
-    <div className="add-availability-form">
-      <h3>Add Availability</h3>
-      <form onSubmit={(e) => e.preventDefault()}>
+    <div className="p-6 text-gray-200 bg-gray-800 rounded-lg shadow-md">
+      <h3 className="mb-4 text-xl font-semibold">Add Availability</h3>
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div className="form-group">
-          <label>Start Date and Time</label>
+          <label className="block mb-2 text-sm font-medium text-gray-300">Start Date and Time</label>
           <DatePicker
             selected={startDate}
             onChange={handleStartDateChange}
             showTimeSelect
             dateFormat="MMMM d, yyyy h:mm aa"
             minDate={new Date()}
+            className="w-full p-2 text-gray-200 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="form-group">
-          <label>End Date and Time</label>
+          <label className="block mb-2 text-sm font-medium text-gray-300">End Date and Time</label>
           <DatePicker
             selected={endDate}
             onChange={(date) => setEndDate(date)}
             showTimeSelect
             dateFormat="MMMM d, yyyy h:mm aa"
             minDate={startDate || new Date()}
+            className="w-full p-2 text-gray-200 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <button type="button" onClick={handleAddAvailability} disabled={!startDate || !endDate}>
+        <button
+          type="button"
+          onClick={handleAddAvailability}
+          disabled={!startDate || !endDate}
+          className={`w-full py-2 px-4 rounded-md font-medium text-white transition ${
+            !startDate || !endDate
+              ? 'bg-gray-600 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
           Add Availability
         </button>
       </form>
