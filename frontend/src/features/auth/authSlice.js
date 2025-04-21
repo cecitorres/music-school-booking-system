@@ -26,6 +26,7 @@ const authSlice = createSlice({
   initialState: {
     user: userFromStorage || null, // Load user from localStorage
     token: tokenFromStorage || null, // Load token from localStorage
+    isAuthenticated: tokenFromStorage || false,
     loading: false,
     error: null,
   },
@@ -33,6 +34,7 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.token = null;
+      state.isAuthenticated = false;
       localStorage.removeItem('user'); // Clear user from localStorage
       localStorage.removeItem('token'); // Clear token from localStorage
     },
@@ -47,6 +49,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

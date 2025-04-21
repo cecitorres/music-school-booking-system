@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage';
 import TeacherList from './features/teachers/TeacherList';
 import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 import MyBookingsPage from './features/bookings/MyBookingsPage';
+import Navbar from './components/Navbar';
 
 const App = () => {
   // Access user from Redux store
@@ -18,33 +19,31 @@ const App = () => {
 
   return (
     <Router>
+      <Navbar />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/teachers" element={<TeacherList />} />
+        <Route path="/teachers/:id" element={<TeacherDetailPage />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute user={user} role="teacher" />}>
-          <Route path="/teacher" element={<TeacherPage teacherId={user?.id} />} />
-        </Route>
-
-        <Route element={<ProtectedRoute user={user} role="student" />}>
-          <Route path="/student" element={<StudentPage studentId={user?.id} />} />
-        </Route>
-
-        <Route path='/teachers/:id' element={<TeacherDetailPage />} />
-
+        {/* Admin Routes */}
         <Route element={<ProtectedRoute user={user} role="admin" />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
 
-        {/* Registration Route */}
-        <Route path="/register" element={<RegisterPage />} />
+        {/* Teacher Routes */}
+        <Route element={<ProtectedRoute user={user} role="teacher" />}>
+          <Route path="/teacher" element={<TeacherPage teacherId={user?.id} />} />
+          <Route path="/bookings" element={<MyBookingsPage />} />
+        </Route>
 
-        {/* Teacher List Route */}
-        <Route path="/teachers" element={<TeacherList />} />
-
-        <Route path='/bookings' element={<MyBookingsPage />} />
+        {/* Student Routes */}
+        <Route element={<ProtectedRoute user={user} role="student" />}>
+          <Route path="/student" element={<StudentPage studentId={user?.id} />} />
+          <Route path="/bookings" element={<MyBookingsPage />} />
+        </Route>
 
         {/* Fallback Route */}
         <Route path="*" element={<div>404 Not Found</div>} />
