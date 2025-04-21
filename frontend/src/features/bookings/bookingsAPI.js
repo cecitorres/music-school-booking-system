@@ -22,7 +22,7 @@ export async function fetchMyBookings() {
 }
 
 export async function fetchHistory() {
-  const res = await fetch(`${baseUrl}/history`);
+  const res = await authorizedFetch('/api/bookings/history');
   if (!res.ok) throw new Error('Error fetching history');
   return await res.json();
 }

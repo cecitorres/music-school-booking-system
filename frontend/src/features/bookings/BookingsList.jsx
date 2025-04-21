@@ -12,37 +12,40 @@ const MyBookingsPage = () => {
   }, [dispatch]);
 
   if (loading) {
-    return <p>Loading your bookings...</p>;
+    return <p className="text-center text-gray-500">Loading your bookings...</p>;
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return <p className="text-center text-red-500">Error: {error}</p>;
   }
 
   if (!upcoming || upcoming.length === 0) {
-    return <p>You have no upcoming bookings.</p>;
+    return <p className="text-center text-gray-500">You have no upcoming bookings.</p>;
   }
 
   return (
-    <div>
-      <h2>My Upcoming Bookings</h2>
-      <ul>
+    <div className="p-4">
+      <ul className="space-y-4">
         {upcoming.map((booking) => (
-          <li key={booking.id} style={{ marginBottom: '1rem', border: '1px solid #ccc', padding: '1rem' }}>
-            <p>
+          <li
+            key={booking.id}
+            className="p-4 transition-shadow border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
+          >
+            <p className="mb-2">
               <strong>Teacher:</strong> {booking.teacherName}
             </p>
-            <p>
+            <p className="mb-2">
               <strong>Student:</strong> {booking.studentName}
             </p>
-            <p>
+            <p className="mb-2">
               <strong>Date:</strong> {new Date(booking.startTime).toLocaleDateString()}
             </p>
-            <p>
-              <strong>Time:</strong> {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
+            <p className="mb-2">
+              <strong>Time:</strong>{' '}
+              {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
               {new Date(booking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
-            <p>
+            <p className="mb-2">
               <strong>Status:</strong> {booking.status}
             </p>
             <BookingActions bookingId={booking.id} currentStatus={booking.status} />

@@ -1,9 +1,9 @@
 // src/App.js
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useSelector } from 'react-redux'; // Import useSelector
+import { useSelector } from 'react-redux';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import TeacherPage from './pages/TeacherPage';
+import TeacherDashboard from './components/TeacherDashboard';
 import StudentPage from './pages/StudentPage';
 import AdminPage from './pages/AdminPage';
 import HomePage from './pages/HomePage';
@@ -16,41 +16,49 @@ import MyAvailabilityPage from './features/availability/MyAvailabilityPage';
 import './styles/AddSlotForm.css';
 
 const App = () => {
-  // Access user from Redux store
   const user = useSelector((state) => state.auth.user);
 
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/teachers" element={<TeacherList />} />
-        <Route path="/teachers/:id" element={<TeacherDetailPage />} />
+      <div className="flex flex-col min-h-screen text-gray-200 bg-gray-900">
+        <Navbar />
+        <main className="flex-grow py-6">
+          <div className="container px-4 mx-auto">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/teachers" element={<TeacherList />} />
+              <Route path="/teachers/:id" element={<TeacherDetailPage />} />
 
-        {/* Admin Routes */}
-        <Route element={<ProtectedRoute user={user} role="admin" />}>
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
+              {/* Admin Routes */}
+              <Route element={<ProtectedRoute user={user} role="admin" />}>
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
 
-        {/* Teacher Routes */}
-        <Route element={<ProtectedRoute user={user} role="teacher" />}>
-          <Route path="/teacher" element={<TeacherPage teacherId={user?.id} />} />
-          <Route path="/bookings" element={<MyBookingsPage />} />
-          <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
-        </Route>
+              {/* Teacher Routes */}
+              <Route element={<ProtectedRoute user={user} role="teacher" />}>
+                <Route path="/teacher" element={<TeacherDashboard teacherId={user?.id} />} />
+                <Route path="/bookings" element={<MyBookingsPage />} />
+                <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
+              </Route>
 
-        {/* Student Routes */}
-        <Route element={<ProtectedRoute user={user} role="student" />}>
-          <Route path="/student" element={<StudentPage studentId={user?.id} />} />
-          <Route path="/bookings" element={<MyBookingsPage />} />
-        </Route>
+              {/* Student Routes */}
+              <Route element={<ProtectedRoute user={user} role="student" />}>
+                <Route path="/student" element={<StudentPage studentId={user?.id} />} />
+                <Route path="/bookings" element={<MyBookingsPage />} />
+              </Route>
 
-        {/* Fallback Route */}
-        <Route path="*" element={<div>404 Not Found</div>} />
-      </Routes>
+              {/* Fallback Route */}
+              <Route path="*" element={<div className="text-center text-gray-400">404 Not Found</div>} />
+            </Routes>
+          </div>
+        </main>
+        <footer className="py-4 text-center bg-gray-800">
+          <p>&copy; 2025 Cecilia. All rights reserved.</p>
+        </footer>
+      </div>
     </Router>
   );
 };

@@ -44,7 +44,6 @@ const TeacherAvailability = ({ teacherId }) => {
 
   return (
     <div>
-      <h3>Teacher Availability</h3>
       <ul>
         {availability.map((slot, index) => (
           <li key={index}>
