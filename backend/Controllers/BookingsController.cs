@@ -248,7 +248,7 @@ namespace MusicSchoolBookingSystem.Controllers
             if (userId == null || (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId) &&
                 (User.IsInRole("Student") && booking.StudentId.ToString() != userId))
             {
-                return Forbid("You are not authorized to view this booking status.");
+                return Unauthorized(new { message = "You are not authorized to view this booking status." });
             }
 
             return Ok(new {
@@ -375,12 +375,12 @@ namespace MusicSchoolBookingSystem.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (User.IsInRole("Student") && booking.StudentId.ToString() != userId)
             {
-                return Forbid("Students can only cancel their own bookings.");
+                return Unauthorized(new { message = "Students can only cancel their own bookings." });
             }
 
             if (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId)
             {
-                return Forbid("Teachers can only cancel their own calendar bookings.");
+                return Unauthorized(new { message = "Teachers can only cancel their own calendar bookings." });
             }
 
 

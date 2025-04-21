@@ -290,7 +290,7 @@ namespace MusicSchoolBookingSystem.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!User.IsInRole("Admin") && userId != teacherId.ToString())
             {
-                return Forbid("You are not authorized to delete this availability slot.");
+                return Unauthorized(new { message = "You are not authorized to delete this availability slot." });
             }
 
             var calendarSlot = await _context.Calendars

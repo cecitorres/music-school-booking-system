@@ -128,7 +128,7 @@ namespace MusicSchoolBookingSystem.Controllers
             
             if (currentUserRole == "Teacher" && registerRequest.Role != "Student")
             {
-                return Forbid("You are not authorized to register this role.");
+                return Unauthorized(new { message = "You are not authorized to register this role." });
             }
 
             // Hash the password
