@@ -12,7 +12,7 @@ const TeacherDashboard = () => {
 
   useEffect(() => {
     if (teacherId) {
-      dispatch(getBookingHistory(teacherId));
+      dispatch(getBookingHistory());
     }
   }, [teacherId, dispatch]);
 
