@@ -13,6 +13,7 @@ import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 import MyBookingsPage from './features/bookings/MyBookingsPage';
 import Navbar from './components/Navbar';
 import MyAvailabilityPage from './features/availability/MyAvailabilityPage';
+import './styles/AddSlotForm.css';
 
 const App = () => {
   // Access user from Redux store

@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux'; // Import useSelector
 import TeacherInfo from '../components/TeacherInfo';
-import CalendarView from '../components/CalendarView';
-import AddSlotForm from '../components/AddSlotForm';
-import LogoutButton from '../components/LogoutButton';
-import NextBookings from '../components/NextBookings';
+// import CalendarView from '../components/CalendarView';
+// import AddSlotForm from '../components/AddSlotForm';
+// import NextBookings from '../components/NextBookings';
+import BookingsList from '../features/bookings/BookingsList';
 
 const TeacherPage = () => {
   // Access teacherId from Redux store
@@ -12,7 +12,6 @@ const TeacherPage = () => {
   return (
     <div className="teacher-page">
       <h1>Teacher Dashboard</h1>
-      {/* <LogoutButton /> */}
 
       {/* Teacher Information Section */}
       <section className="teacher-info-section">
@@ -23,6 +22,8 @@ const TeacherPage = () => {
           <p>Loading teacher information...</p>
         )}
       </section>
+
+      <BookingsList teacherId={teacherId} />
 
       {/* Next classes (confirmed and pending confirm) */}
       {/* <section className="next-classes-section">
