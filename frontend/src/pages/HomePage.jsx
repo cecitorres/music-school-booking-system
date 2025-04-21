@@ -7,7 +7,7 @@ import TeacherDashboard from '../components/TeacherDashboard';
 import AdminDashboard from '../components/AdminDashboard';
 
 const HomePage = () => {
-  const userRole = useSelector((state) => state.auth.user.role);
+  const userRole = useSelector((state) => state.auth.user?.role);
 
   const renderDashboard = () => {
     switch (userRole) {
@@ -32,7 +32,9 @@ const HomePage = () => {
     }
   };
 
-  return <div className="min-h-screen p-6 bg-gray-900">{renderDashboard()}</div>;
+  return (
+    <div className="min-h-screen p-6 pt-16 bg-gray-900">{renderDashboard()}</div>
+  );
 };
 
 export default HomePage;
