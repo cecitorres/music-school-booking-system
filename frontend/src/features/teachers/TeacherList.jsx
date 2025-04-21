@@ -2,14 +2,20 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTeachers } from './teachersSlice';
+import { useNavigate } from 'react-router-dom';
 
 const TeacherList = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { list: teachers, loading, error } = useSelector((state) => state.teachers);
 
   useEffect(() => {
     dispatch(getTeachers());
   }, [dispatch]);
+
+  const handleView = (teacherId) => {
+    navigate(`/teachers/${teacherId}`); // Navigate to the teacher's detail page
+  };
 
   if (loading) {
     return <p className="text-center text-gray-400">Loading teachers...</p>;
@@ -35,6 +41,7 @@ const TeacherList = () => {
                 <th className="px-4 py-2 border border-gray-600">Email</th>
                 <th className="px-4 py-2 border border-gray-600">Phone Number</th>
                 <th className="px-4 py-2 border border-gray-600">Instruments</th>
+                <th className="px-4 py-2 border border-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -44,6 +51,14 @@ const TeacherList = () => {
                   <td className="px-4 py-2 border border-gray-600">{teacher.email}</td>
                   <td className="px-4 py-2 border border-gray-600">{teacher.phoneNumber || 'N/A'}</td>
                   <td className="px-4 py-2 border border-gray-600">{teacher.instruments}</td>
+                  <td className="px-4 py-2 text-center border border-gray-600">
+                    <button
+                      onClick={() => handleView(teacher.id)}
+                      className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
