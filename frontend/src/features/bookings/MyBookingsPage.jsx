@@ -19,7 +19,11 @@ const MyBookingsPage = () => {
   }
 
   if (!upcoming || upcoming.length === 0) {
-    return <p className="text-center text-gray-400">You have no upcoming bookings.</p>;
+    return (
+      <div className="min-h-screen p-6 pt-16 text-gray-200 bg-gray-900">
+        <p className="text-center text-gray-400">You have no upcoming bookings.</p>
+      </div>
+    );
   }
 
   return (
