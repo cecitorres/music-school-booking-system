@@ -17,11 +17,17 @@ const BookingActions = ({ bookingId, currentStatus }) => {
   }
 
   return (
-    <div>
-      <button onClick={() => handleUpdateStatus('Accepted')} style={{ marginRight: '10px' }}>
+    <div className="flex mt-2 space-x-2">
+      <button
+        onClick={() => handleUpdateStatus('Accepted')}
+        className="px-4 py-2 text-white transition bg-green-500 rounded hover:bg-green-600"
+      >
         Accept
       </button>
-      <button onClick={() => handleUpdateStatus('Rejected')} style={{ color: 'red' }}>
+      <button
+        onClick={() => handleUpdateStatus('Rejected')}
+        className="px-4 py-2 text-white transition bg-red-500 rounded hover:bg-red-600"
+      >
         Reject
       </button>
     </div>
