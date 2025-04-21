@@ -5,6 +5,7 @@ import {
   fetchHistory,
   updateBookingStatus,
   cancelBooking,
+  fetchAllBookings, // Import the fetchAllBookings function
 } from './bookingsAPI';
 
 export const bookClass = createAsyncThunk('bookings/bookClass', createBooking);
@@ -18,11 +19,15 @@ export const updateStatus = createAsyncThunk(
 );
 export const cancelClass = createAsyncThunk('bookings/cancel', cancelBooking);
 
+// Add the new async thunk for fetching all bookings
+export const getAllBookings = createAsyncThunk('bookings/getAllBookings', fetchAllBookings);
+
 const bookingsSlice = createSlice({
   name: 'bookings',
   initialState: {
     upcoming: [],
     history: [],
+    allBookings: [], // Add a new state for all bookings
     loading: false,
     error: null,
   },
@@ -40,6 +45,19 @@ const bookingsSlice = createSlice({
       })
       .addCase(getBookingHistory.fulfilled, (state, action) => {
         state.history = action.payload;
+      })
+      // Handle getAllBookings
+      .addCase(getAllBookings.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllBookings.fulfilled, (state, action) => {
+        state.allBookings = action.payload;
+        state.loading = false;
+      })
+      .addCase(getAllBookings.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

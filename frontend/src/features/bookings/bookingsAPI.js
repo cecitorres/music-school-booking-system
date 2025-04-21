@@ -44,3 +44,9 @@ export async function cancelBooking(id) {
   if (!res.ok) throw new Error('Error cancelling booking');
   return await res.json();
 }
+
+export async function fetchAllBookings() {
+  const res = await authorizedFetch('/api/bookings');
+  if (!res.ok) throw new Error('Error fetching all bookings');
+  return await res.json();
+}
