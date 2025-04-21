@@ -50,50 +50,61 @@ const TeacherBookLesson = ({ teacherId, studentId }) => {
     try {
       await dispatch(bookClass(bookingData)).unwrap();
       alert('Class booked successfully!');
+      setStartDate(null);
+      setEndDate(null);
     } catch (err) {
       alert('Failed to book class: ' + err.message);
     }
   };
 
   if (loading) {
-    return <p>Loading availability...</p>;
+    return <p className="text-center text-gray-400">Loading availability...</p>;
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return <p className="text-center text-red-500">Error: {error}</p>;
   }
 
   if (!availability || availability.length === 0) {
-    return <div></div>;
+    return <p className="text-center text-gray-400">No availability found for this teacher.</p>;
   }
 
   return (
-    <div className="book-lesson-form">
-      <h3>Book a Lesson</h3>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <div className="form-group">
-          <label>Start Date and Time</label>
+    <div className="p-6 text-gray-200 bg-gray-800 rounded-lg shadow-md">
+      <h3 className="mb-4 text-xl font-bold">Book a Lesson</h3>
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+        <div>
+          <label className="block mb-2 text-gray-400">Start Date and Time</label>
           <DatePicker
             selected={startDate}
             onChange={handleStartDateChange}
             showTimeSelect
             dateFormat="MMMM d, yyyy h:mm aa"
             minDate={new Date()}
+            className="w-full p-2 text-gray-200 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div className="form-group">
-          <label>End Date and Time</label>
+        <div>
+          <label className="block mb-2 text-gray-400">End Date and Time</label>
           <DatePicker
             selected={endDate}
             onChange={(date) => setEndDate(date)}
             showTimeSelect
             dateFormat="MMMM d, yyyy h:mm aa"
             minDate={startDate || new Date()}
+            className="w-full p-2 text-gray-200 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <button type="button" onClick={handleBookClass} disabled={!startDate || !endDate}>
+        <button
+          type="button"
+          onClick={handleBookClass}
+          disabled={!startDate || !endDate}
+          className={`w-full py-2 px-4 rounded-md font-medium text-white transition ${
+            !startDate || !endDate ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
           Book
         </button>
       </form>

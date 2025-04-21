@@ -31,22 +31,23 @@ const TeacherAvailability = ({ teacherId }) => {
   };
 
   if (loading) {
-    return <p>Loading availability...</p>;
+    return <p className="text-center text-gray-400">Loading availability...</p>;
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return <p className="text-center text-red-500">Error: {error}</p>;
   }
 
   if (!availability || availability.length === 0) {
-    return <p>No availability found for this teacher.</p>;
+    return <p className="text-center text-gray-400">No availability found for this teacher.</p>;
   }
 
   return (
-    <div>
-      <ul>
+    <div className="p-6 text-gray-200 bg-gray-800 rounded-lg shadow-md">
+      <h3 className="mb-4 text-xl font-bold">Availability</h3>
+      <ul className="space-y-2">
         {availability.map((slot, index) => (
-          <li key={index}>
+          <li key={index} className="text-gray-400">
             {formatDate(slot.startTime)}, {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
           </li>
         ))}
