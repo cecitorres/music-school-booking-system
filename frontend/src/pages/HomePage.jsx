@@ -2,9 +2,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import StudentDashboard from '../components/StudentDashboard';
-import TeacherDashboard from '../components/TeacherDashboard';
-import AdminDashboard from '../components/AdminDashboard';
+import StudentDashboard from './StudentDashboard';
+import TeacherDashboard from './TeacherDashboard';
+import AdminDashboard from './AdminDashboard';
 
 const HomePage = () => {
   const userRole = useSelector((state) => state.auth.user?.role);

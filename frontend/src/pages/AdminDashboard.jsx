@@ -3,9 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getAllBookings } from '../features/bookings/bookingsSlice';
 import { getStudents } from '../features/students/studentsSlice';
 import { getTeachers } from '../features/teachers/teachersSlice';
-import BookingsTable from './BookingsTable';
-import StudentsTable from './StudentsTable';
-import TeachersTable from './TeachersTable';
+import BookingsTable from '../components/BookingsTable';
+import StudentsTable from '../components/StudentsTable';
+import TeachersTable from '../components/TeachersTable';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
