@@ -278,7 +278,8 @@ namespace MusicSchoolBookingSystem.Controllers
 
                 // Include related entities
                 var booking = await _context.Bookings
-                    .Include(b => b.Calendar) // Include Calendar to avoid null reference
+                    .Include(b => b.Calendar)
+                        .ThenInclude(c => c.Teacher) // Include Teacher to access UserId
                     .FirstOrDefaultAsync(b => b.Id == id);
 
                 if (booking == null)
@@ -294,9 +295,11 @@ namespace MusicSchoolBookingSystem.Controllers
 
                 // Check if the user is authorized to update the booking status
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId) || (User.IsInRole("Teacher") && (booking.Calendar == null || booking.Calendar.TeacherId.ToString() != userId)))
+
+                if (string.IsNullOrEmpty(userId) || 
+                    (User.IsInRole("Teacher") && (booking.Calendar == null || booking.Calendar.Teacher.UserId.ToString() != userId)))
                 {
-                    return Forbid("You are not authorized to update this booking status.");
+                    return Unauthorized(new { message = "You are not authorized to update this booking status." });
                 }
 
                 // Update the booking status
