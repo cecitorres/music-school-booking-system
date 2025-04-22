@@ -182,11 +182,7 @@ namespace MusicSchoolBookingSystem.Controllers
                     .ThenInclude(s => s.User)
                 .Include(b => b.Calendar)
                     .ThenInclude(c => c.Teacher)
-                        .ThenInclude(t => t.User)
-                .Where(b =>
-                    b.Status != "Cancelled" &&
-                    b.EndTime >= now
-                );
+                        .ThenInclude(t => t.User);
 
             if (User.IsInRole("Student"))
             {
