@@ -121,7 +121,8 @@ namespace MusicSchoolBookingSystem.Controllers
                 .Where(b => b.StudentId == bookingRequest.StudentId
                     && b.CalendarId == calendar.Id
                     && b.StartTime == bookingRequest.StartTime
-                    && b.EndTime == bookingEndTime)
+                    && b.EndTime == bookingEndTime
+                    && b.Status == "Pending")
                 .FirstOrDefaultAsync();
 
             if (duplicateBooking != null)
@@ -330,6 +331,7 @@ namespace MusicSchoolBookingSystem.Controllers
         {
             var booking = await _context.Bookings
                 .Include(b => b.Calendar)
+                    .ThenInclude(c => c.Teacher) // Include Teacher to access UserId
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (booking == null)
@@ -374,11 +376,10 @@ namespace MusicSchoolBookingSystem.Controllers
                 return Unauthorized(new { message = "Students can only cancel their own bookings." });
             }
 
-            if (User.IsInRole("Teacher") && booking.Calendar.TeacherId.ToString() != userId)
+            if (User.IsInRole("Teacher") && booking.Calendar.Teacher.UserId.ToString() != userId)
             {
                 return Unauthorized(new { message = "Teachers can only cancel their own calendar bookings." });
             }
-
 
             booking.Status = "Cancelled";
             await _context.SaveChangesAsync();
