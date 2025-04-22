@@ -29,7 +29,7 @@ const MyBookingsPage = () => {
   return (
     <div className="min-h-screen p-6 pt-16 text-gray-200 bg-gray-900">
       <div className="container max-w-4xl mx-auto space-y-8">
-        <h2 className="text-3xl font-bold text-center">My Upcoming Bookings</h2>
+        <h2 className="text-3xl font-bold text-center">All My Classes</h2>
         <div className="overflow-x-auto bg-gray-800 rounded-lg shadow-md">
           <table className="w-full border-collapse table-auto">
             <thead>
