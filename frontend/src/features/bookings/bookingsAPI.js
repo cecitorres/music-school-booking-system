@@ -1,7 +1,4 @@
 import { authorizedFetch } from '../../utils/api';
-import { API_BASE_URL } from '../../config';
-
-const baseUrl = `${API_BASE_URL}/api/bookings`;
 
 export async function createBooking(data) {
   const res = await authorizedFetch('/api/bookings', {
@@ -38,9 +35,14 @@ export async function updateBookingStatus({ id, status }) {
 }
 
 export async function cancelBooking(id) {
-  const res = await fetch(`${baseUrl}/${id}`, {
+  const res = await authorizedFetch(`/api/bookings/${id}`, {
     method: 'DELETE',
   });
+  
+  if (res.status === 204) {
+    return { message: 'Booking successfully cancelled.' };
+  }
+
   if (!res.ok) throw new Error('Error cancelling booking');
   return await res.json();
 }

@@ -1,6 +1,19 @@
-import BookingActions from './BookingActions';
+import { useDispatch } from 'react-redux';
+import { cancelClass, getMyBookings } from './bookingsSlice'; // Import getMyBookings to re-fetch classes
 
 const UpcomingBookings = ({ bookings, loading, error, userRole }) => {
+  const dispatch = useDispatch();
+
+  const handleCancel = async (bookingId) => {
+    try {
+      await dispatch(cancelClass(bookingId)); // Dispatch cancelClass action
+      alert('Class canceled successfully'); // Show success alert
+      dispatch(getMyBookings()); // Re-fetch the bookings
+    } catch (err) {
+      alert(`Failed to cancel class: ${err.message}`); // Show error alert
+    }
+  };
+
   if (loading) {
     return <p className="text-center text-gray-500">Loading your bookings...</p>;
   }
@@ -42,7 +55,16 @@ const UpcomingBookings = ({ bookings, loading, error, userRole }) => {
             <p className="mb-2">
               <strong>Status:</strong> {booking.status}
             </p>
-            <BookingActions bookingId={booking.id} currentStatus={booking.status} />
+            {userRole === 'Teacher' && (
+              <>
+                <button
+                  onClick={() => handleCancel(booking.id)}
+                  className="mt-2 px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                >
+                  Cancel Class
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>
