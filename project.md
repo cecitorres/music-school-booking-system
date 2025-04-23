@@ -2,51 +2,44 @@
 
 ## Overview
 
-This project is a Booking System for a Music School designed to help private music teachers manage their schedules, bookings, and student interactions. The system allows teachers to set their availability, students to book sessions for specific instruments, and both parties to receive reminders. It is built using .NET and is designed to be simple yet effective.
+This project is a Booking System for a Music School, designed to help private music teachers manage their schedules and student bookings. The current version supports essential functionality for handling lesson requests, with a focus on simplicity and clarity. It is built using .NET, React.js, Tailwind CSS, and PostgreSQL.
 
 ## Features
 
 ### Core Features
 
-1. Teacher Availability Calendar:
-    - Teachers can set their availability for online or in-person sessions.
-    - Availability slots can be 30 minutes, 45 minutes, or 1 hour.
+1. Teacher Availability:
+    - Teachers can set their availability for lesson sessions.
+    - Multiple availability slots can be created at once.
 
 2. Student Booking:
-    - Students can view the teacher's availability and book a slot that works for them.
-    - Students can choose the type of class (e.g., piano, guitar, violin) when booking.
-    - Teachers receive a notification to confirm the booking.
+    - Students can view available time slots and request a session.
+    - Booking history of past sessions is available.
 
-3. Reminders:
-    - Automated reminders are sent to students before their scheduled sessions.
-    - Teachers can also receive reminders for upcoming classes.
+3. Booking Management:
+    - Teachers can view all incoming booking requests.
+    - Both teachers and students can confirm or reject a session request.
+    - Each entry includes key details such as student name, session duration, and booking status.
 
-4. Teacher Calendar View:
-    - Teachers can view their schedule in a calendar format.
-    - Includes details like student name, session duration, instrument, and location (online or in-person).
 
 ### Additional Features (Optional)
 
-1. Student Profiles:
-    - Students can create profiles to save their information and booking history.
-
-2. Session Rescheduling:
+1. Session Rescheduling:
     - Students can request to reschedule a session, subject to teacher approval.
 
-3. Payment Integration (future):
+2. Payment Integration (future):
     - Basic payment integration for students to pay for sessions (e.g., via Stripe or PayPal).
 
-4. Session Notes:
+3. Session Notes:
     - Teachers can add notes after each session to track student progress.
 
-5. Email Notifications:
+4. Email Notifications:
     - Email notifications for booking confirmations, reminders, and rescheduling requests.
 
 ## Technology Stack
 - Backend: .NET (C#)
 - Frontend: React.Js
-- Database: Pending
-- SMS Service: AWS
+- Database: PostgreSQL
 
 
 ## License
