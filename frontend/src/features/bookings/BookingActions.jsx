@@ -20,15 +20,17 @@ const BookingActions = ({ bookingId, currentStatus }) => {
     <div className="flex mt-2 space-x-2">
       <button
         onClick={() => handleUpdateStatus('Accepted')}
-        className="px-4 py-2 text-white transition bg-green-500 rounded hover:bg-green-600"
+        className="px-4 py-2 text-sm font-medium text-white transition bg-green-500 rounded hover:bg-green-600"
+        title="Accept this booking"
       >
-        Accept
+        ✅ Accept
       </button>
       <button
         onClick={() => handleUpdateStatus('Rejected')}
-        className="px-4 py-2 text-white transition bg-red-500 rounded hover:bg-red-600"
+        className="px-4 py-2 text-sm font-medium text-white transition bg-red-500 rounded hover:bg-red-600"
+        title="Reject this booking"
       >
-        Reject
+        ❌ Reject
       </button>
     </div>
   );
