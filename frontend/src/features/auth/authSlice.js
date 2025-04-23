@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginAPI, registerUser } from './authAPI';
+import { loginAPI, registerUser, editUser } from './authAPI';
 
 // Load user and token from localStorage
 const userFromStorage = JSON.parse(localStorage.getItem('user'));
@@ -21,6 +21,19 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
 
 export const register = createAsyncThunk('auth/register', registerUser);
 
+// Async thunk for editing a user
+export const editUserThunk = createAsyncThunk(
+  'auth/editUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await editUser(userData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -29,6 +42,7 @@ const authSlice = createSlice({
     isAuthenticated: tokenFromStorage || false,
     loading: false,
     error: null,
+    status: 'idle',
   },
   reducers: {
     logout(state) {
@@ -54,6 +68,17 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload; // Set the error message
+      })
+      .addCase(editUserThunk.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(editUserThunk.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload; // Update the user data
+      })
+      .addCase(editUserThunk.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   },
 });

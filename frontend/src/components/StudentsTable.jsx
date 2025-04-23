@@ -1,14 +1,7 @@
 import React from 'react';
-// import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const StudentsTable = ({ students, loading, error }) => {
-    // const history = useHistory();
-    const handleEdit = (studentId) => {
-        // Navigate to the edit student page with the student ID using React Router
-        // For example: history.push(`/students/edit/${studentId}`);
-        // history.push(`/students/edit/${studentId}`);     
-        
-    };
 
     return (
         <section>
@@ -35,12 +28,12 @@ const StudentsTable = ({ students, loading, error }) => {
                                         <td className="px-4 py-2 border border-gray-600">{student.phoneNumber || 'N/A'}</td>
                                         <td className="px-4 py-2 border border-gray-600">{student.email}</td>
                                         <td className="px-4 py-2 text-center border border-gray-600">
-                                            <button
-                                                onClick={() => handleEdit(student.id)}
-                                                className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                                            <Link
+                                                to={`/edit/${student.id}`}
+                                                className="px-2 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
                                             >
                                                 Edit
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}

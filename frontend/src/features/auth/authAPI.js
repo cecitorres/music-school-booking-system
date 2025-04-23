@@ -27,3 +27,17 @@ export async function registerUser(userData) {
 
   return await response.json();
 }
+
+export async function editUser(userData) {
+  const response = await authorizedFetch('/api/auth/edit', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to edit user');
+  }
+
+  return await response.json();
+}

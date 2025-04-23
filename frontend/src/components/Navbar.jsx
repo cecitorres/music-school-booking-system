@@ -36,7 +36,7 @@ const Navbar = () => {
 
           {isAuthenticated && user?.role === 'Admin' && (
             <>
-              <Link to="/admin" className="transition hover:text-white">Admin Panel</Link>
+              <Link to="/teachers" className="transition hover:text-white">Teachers</Link>
               <Link to="/register" className="transition hover:text-white">Register</Link>
             </>
           )}

@@ -9,6 +9,7 @@ import TeacherDetailPage from './features/teachers/TeacherDetailPage';
 import MyBookingsPage from './features/bookings/MyBookingsPage';
 import Navbar from './components/Navbar';
 import MyAvailabilityPage from './features/availability/MyAvailabilityPage';
+import EditPage from './pages/EditPage';
 
 const App = () => {
   const user = useSelector((state) => state.auth.user);
@@ -27,6 +28,7 @@ const App = () => {
               <Route path="/teachers/:id" element={<TeacherDetailPage />} />
               <Route path="/bookings" element={<MyBookingsPage />} />
               <Route path="/teacher/availability" element={<MyAvailabilityPage teacherId={user?.id} />} />
+              <Route path="/edit/:id" element={<EditPage />} />
 
               {/* Fallback Route */}
               <Route path="*" element={<div className="text-center text-gray-400">404 Not Found</div>} />

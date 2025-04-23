@@ -1,10 +1,6 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TeachersTable = ({ teachers, loading, error }) => {
-    const handleEdit = (teacherId) => {
-        console.log(`Edit teacher with ID: ${teacherId}`);
-        // Add logic to navigate to the edit teacher page or open a modal
-    };
 
     return (
         <section>
@@ -32,12 +28,12 @@ const TeachersTable = ({ teachers, loading, error }) => {
                                         </td>
                                         <td className="px-4 py-2 border border-gray-600">{teacher.email}</td>
                                         <td className="px-4 py-2 text-center border border-gray-600">
-                                            <button
-                                                onClick={() => handleEdit(teacher.id)}
-                                                className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                                            <Link
+                                                to={`/edit/${teacher.id}`}
+                                                className="px-2 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
                                             >
                                                 Edit
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}
