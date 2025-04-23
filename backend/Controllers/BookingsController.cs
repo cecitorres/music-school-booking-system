@@ -371,12 +371,23 @@ namespace MusicSchoolBookingSystem.Controllers
 
             // Check if the user is authorized to delete the booking
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (User.IsInRole("Student") && booking.StudentId.ToString() != userId)
+            if (User.IsInRole("Student"))
             {
-                return Unauthorized(new { message = "Students can only cancel their own bookings." });
+                var student = await _context.Students
+                    .FirstOrDefaultAsync(s => s.UserId.ToString() == userId);
+
+                if (student == null)
+                {
+                    return NotFound(new { message = "Student profile not found." });
+                }
+
+                if (booking.StudentId != student.Id)
+                {
+                    return Unauthorized(new { message = "Students can only cancel their own bookings." });
+                }
             }
 
-            if (User.IsInRole("Teacher") && booking.Calendar.Teacher.UserId.ToString() != userId)
+            else if (User.IsInRole("Teacher") && booking.Calendar.Teacher.UserId.ToString() != userId)
             {
                 return Unauthorized(new { message = "Teachers can only cancel their own calendar bookings." });
             }

@@ -55,7 +55,6 @@ const UpcomingBookings = ({ bookings, loading, error, userRole }) => {
             <p className="mb-2">
               <strong>Status:</strong> {booking.status}
             </p>
-            {userRole === 'Teacher' && (
               <>
                 <button
                   onClick={() => handleCancel(booking.id)}
@@ -64,7 +63,6 @@ const UpcomingBookings = ({ bookings, loading, error, userRole }) => {
                   Cancel Class
                 </button>
               </>
-            )}
           </li>
         ))}
       </ul>
